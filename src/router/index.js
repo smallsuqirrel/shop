@@ -6,13 +6,20 @@ import Login from '../components/Login.vue'
 import Home from '../components/home.vue'
 Vue.use(Router)
 
+import Welcome from '../components/Welcome.vue'
+
 const router = new Router({
   routes: [
     //这段代码是打开页面直接跳转到某个页面
     {path:'/',redirect:'/Login'}, 
     //添加login页面
     {path: '/login', component: Login},
-    {path: '/home', component: Home}
+    {
+      path: '/home', 
+      component: Home,
+      redirect: '/welcome',
+      children: [{path:'/welcome', component: Welcome}
+    ]}
   ]
 })
 
