@@ -8,6 +8,8 @@ Vue.use(Router)
 
 import Welcome from '../components/Welcome.vue'
 
+import Users from '../components/user/Users.vue'
+
 const router = new Router({
   routes: [
     //这段代码是打开页面直接跳转到某个页面
@@ -18,8 +20,11 @@ const router = new Router({
       path: '/home', 
       component: Home,
       redirect: '/welcome',
-      children: [{path:'/welcome', component: Welcome}
-    ]}
+      children: [
+        {path:'/welcome', component: Welcome},
+        {path: '/users', component: Users}
+      ]
+    }
   ]
 })
 
