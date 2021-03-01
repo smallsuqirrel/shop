@@ -38,7 +38,7 @@
                         <!-- 修改按钮 -->
                         <el-button type="primary" icon="el-icon-edit" size="mini" @click="showEditDialog(scope.row.id)"></el-button>
                         <!-- 删除按钮 -->
-                        <el-button type="danger" icon="el-icon-delete" size="mini"></el-button>
+                        <el-button type="danger" icon="el-icon-delete" size="mini" @click="showDeleteDialog(scope.row.id)"></el-button>
                         <!-- 分配角色按钮  -->
                          <el-tooltip class="item" effect="dark" content="分配角色" placement="top" :enterable="false">
                             <el-button type="warning" icon="el-icon-setting" size="mini"></el-button>
@@ -111,6 +111,9 @@
             <el-button type="primary" @click="editDialogClosed">确 定</el-button>
         </span>
         </el-dialog>
+
+        <!-- 删除用户 -->
+        
     </div>
 </template>
 
@@ -141,7 +144,7 @@ export default {
                 //当前的页数
                 pagenum: 1,
                 //当前每页显示多少数据
-                pagesize: 2
+                pagesize: 10
             },
             userList: [],
             total : 0,
@@ -225,7 +228,7 @@ export default {
         },
         // 监听switch状态的改变
         async userStateChanged(userInfo){
-            console.log(userInfo)
+            // console.log(userInfo)
             const {data: res} = await this.$http.put(`users/${userInfo.id}/state/${userInfo.mg_state}`)
             if(res.meta.status !== 200){
                 userInfo.mg_state = !userInfo.mg_state
@@ -246,6 +249,7 @@ export default {
                 }
                 this.$message.success('添加用户成功！')
                 this.dialogVisible = false
+                this.getUserList()
             })
         },
         // 展示编辑用户的对话框
@@ -283,8 +287,27 @@ export default {
                     //提示更新成功
                     this.$message.success('更新用户信息成功')
             })
-        }
+        },
+        // 删除用户信息
+        async showDeleteDialog(id) {
+            const confirmResult =  await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).catch(err =>err)
 
+            if(confirmResult !== 'confirm') {
+                return this.$message.info('已取消删除')
+            }
+
+            const{data:res}= await this.$http.delete('users/' + id)
+            if(res.meta.status!==200){
+                return this.$message.error('删除用户信息失败')
+            }
+
+            this.$message.success('删除用户信息成功')
+            this.getUserList()
+        }
     }
 }
 </script>
