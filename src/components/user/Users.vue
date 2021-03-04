@@ -208,6 +208,7 @@ export default {
     created(){
         this.getUserList()
     },
+    
     methods: {
         async getUserList(){
             const {data: res} = await this.$http.get('users',{params: this.queryInfo})
