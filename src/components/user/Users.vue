@@ -61,13 +61,12 @@
 
         <!-- 添加用户 -->
         <el-dialog
-        title="提示"
+        title="添加用户"
         :visible.sync="dialogVisible"
         width="50%"
         @close="addDialogClosed"
         >
             <!-- 内容主体区域 -->
-            <span>添加用户</span>
             <el-form ref="addFormRef" :model="addForm" :rules="addFormRules" label-width="70px">
                 <el-form-item label="用户名" prop="username">
                     <el-input v-model="addForm.username"></el-input>
@@ -108,7 +107,7 @@
         </el-form>
         <span slot="footer" class="dialog-footer">
             <el-button @click="editDialogVisible = false">取 消</el-button>
-            <el-button type="primary" @click="editDialogClosed">确 定</el-button>
+            <el-button type="primary" @click="editUserDialogClosed">确 定</el-button>
         </span>
         </el-dialog>
 
@@ -208,7 +207,7 @@ export default {
     created(){
         this.getUserList()
     },
-    
+
     methods: {
         async getUserList(){
             const {data: res} = await this.$http.get('users',{params: this.queryInfo})
@@ -246,7 +245,7 @@ export default {
                 //发起添加用户的网络请求
                 const{data:res} = await this.$http.post('users',this.addForm)
                 if(res.meta.status!==201){
-                    this.$message.error('添加用户失败！')
+                    return this.$message.error('添加用户失败！')
                 }
                 this.$message.success('添加用户成功！')
                 this.dialogVisible = false
@@ -267,9 +266,9 @@ export default {
             this.$refs.editFormRef.resetFields()
         },
         //修改用户信息并提交
-        editDialogClosed(){
-            this.$refs.editFormRef.validate(async vaild=>{
-                    if(!vaild) {
+        editUserDialogClosed(){
+            this.$refs.editFormRef.validate(async valid=>{
+                    if(!valid) {
                         return
                     }
                      //发起修改用户信息的数据请求
@@ -291,7 +290,7 @@ export default {
         },
         // 删除用户信息
         async showDeleteDialog(id) {
-            const confirmResult =  await this.$confirm('此操作将永久删除该文件, 是否继续?', '提示', {
+            const confirmResult =  await this.$confirm('此操作将永久删除该用户, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
             type: 'warning'
