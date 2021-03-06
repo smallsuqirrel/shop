@@ -11,7 +11,38 @@
                 <el-button type="primary" @click="addDialogVisible=true">添加角色</el-button>
             </el-col>
             <el-table :data="rolesList" border stripe>
-                <el-table-column type="expand"></el-table-column>
+                <el-table-column type="expand">
+                    <template slot-scope="scope">
+                        
+                        <el-row class="vcenter" :class="['bdbottom' , i1===0 ?'bdtop' : '']" v-for="(item1,i1) in scope.row.children" :key="item1.id" >
+                            <!-- 渲染一级权限 -->
+                            <el-col :span="5">
+                                <el-tag closable @close="removedRightById(scope.row,item1.id)"> 
+                                    {{item1.authName}}
+                                    
+                                </el-tag>
+                                <i class="el-icon-caret-right"></i>
+                            </el-col>
+                            <!-- 渲染二级和三级权限 -->
+                            <el-col :span="19">
+                                <!-- 渲染二级权限 -->
+                                <el-row class="vcenter" :class="[i2===0 ? '' : 'bdtop']" v-for="(item2,i2) in item1.children" :key="item2.id" >
+                                    <el-col :span="6">
+                                        <el-tag type="success" closable @close="removedRightById(scope.row,item2.id)">{{item2.authName}}</el-tag>
+                                        <i class="el-icon-caret-right"></i>
+                                    </el-col>
+                                    <el-col :span="18">
+                                            <el-tag v-for="(item3,i3) in item2.children" :key="item3.id" type="warning" closable @close="removedRightById(scope.row,item3.id)">{{item3.authName}}</el-tag>
+    
+                                    </el-col>
+                                </el-row>
+                            </el-col>
+                        </el-row>
+                        <!-- <pre>
+                            {{scope.row}}
+                        </pre> -->
+                    </template>
+                </el-table-column>
                  
                 <el-table-column label="#" type="index"></el-table-column>
                 <el-table-column  label="角色名称" prop="roleName"></el-table-column>
@@ -183,12 +214,30 @@ export default {
                 this.getRolesList()
                 this.$message.success('更新角色信息成功')
                 })
-            
+        },
+        async removedRightById(role,rightId){
+        
+            const confirmResult =  await this.$confirm('此操作将永久删除该权限, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+            }).catch(err=>err)
+            if(confirmResult !== 'confirm') return this.$message.info('取消删除')
+
+            const{data:res} = await this.$http.delete(`roles/${role.id}/rights/${rightId}`)
+            if(res.meta.status !== 200){
+                return this.$message.error("删除权限失败")
+            }
+            // this.getRolesList()
+            role.children = res.data
         }
     }
 }
 </script>
 
 <style lang="less" scoped>
-
+.vcenter{
+    display:flex;
+    align-items: center;
+}
 </style>
