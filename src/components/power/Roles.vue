@@ -32,7 +32,7 @@
                                         <i class="el-icon-caret-right"></i>
                                     </el-col>
                                     <el-col :span="18">
-                                            <el-tag v-for="(item3,i3) in item2.children" :key="item3.id" type="warning" closable @close="removedRightById(scope.row,item3.id)">{{item3.authName}}</el-tag>
+                                            <el-tag v-for="(item3) in item2.children" :key="item3.id" type="warning" closable @close="removedRightById(scope.row,item3.id)">{{item3.authName}}</el-tag>
     
                                     </el-col>
                                 </el-row>
@@ -55,7 +55,7 @@
                         <el-button type="danger" icon="el-icon-delete" size="mini" @click="deleteDialog(scope.row.id)">删除</el-button>
                         <!-- 分配角色按钮  -->
                          <el-tooltip class="item" effect="dark" content="分配权限" placement="top" :enterable="false">
-                            <el-button type="warning" icon="el-icon-setting" size="mini">分配权限</el-button>
+                            <el-button type="warning" icon="el-icon-setting" size="mini" @click="showRight(scope.row)">分配权限</el-button>
                         </el-tooltip>
                     </template>
                 </el-table-column>
@@ -105,6 +105,19 @@
             <el-button type="primary" @click="editRoleDialog">确 定</el-button>
         </span>
         </el-dialog>
+
+        <!-- 分配权限 -->
+        <el-dialog
+        title="分配权限"
+        :visible.sync="rightDialog"
+        width="50%"
+        @close="setRightClosed()">
+        <el-tree :data="rightList" :props="treeProps" show-checkbox node-key="id" default-expand-all :default-checked-keys="defKeys" ref="treeRef"></el-tree>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="rightDialog = false">取 消</el-button>
+            <el-button type="primary" @click="alloRights">确 定</el-button>
+        </span>
+        </el-dialog>
     </div> 
 </template>
 
@@ -129,7 +142,17 @@ export default {
             editForm: {},
             editFormRules:{
                 roleName:[{required: true, message: '请输入角色名称',trigger:'blur'}]
-            }
+            },
+
+            rightDialog: false,
+            rightList:[],
+
+            treeProps: {
+                children: 'children',
+                label: 'authName'
+            },
+            defKeys: [],
+            roleId:''
         }
     },
     created(){
@@ -216,7 +239,6 @@ export default {
                 })
         },
         async removedRightById(role,rightId){
-        
             const confirmResult =  await this.$confirm('此操作将永久删除该权限, 是否继续?', '提示', {
             confirmButtonText: '确定',
             cancelButtonText: '取消',
@@ -230,6 +252,44 @@ export default {
             }
             // this.getRolesList()
             role.children = res.data
+        },
+
+        // 分配权限对话框
+        async showRight(role){
+            this.roleId = role.id
+            // 获取所有权限数据
+            const{data:res} =  await this.$http.get('rights/tree')
+            if(res.meta.status!==200) return this.$message.error('获取权限列表失败')
+            this.rightList = res.data
+
+            this.getLeafKeys(role,this.defKeys)
+
+            this.rightDialog = true
+        },
+
+        getLeafKeys(node ,arr){
+            if(!node.children){
+                return arr.push(node.id)
+            }
+
+            node.children.forEach(item => this.getLeafKeys(item,arr))
+        },
+
+        setRightClosed(){
+            this.defKeys = []
+        },
+
+        async alloRights(){
+            const key = [...this.$refs.treeRef.getCheckedKeys(), ...this.$refs.treeRef.getHalfCheckedKeys()]
+            console.log(key);
+            const idStr = key.join(',')
+            const{data:res} = await this.$http.post(`roles/${this.roleId}/rights`,{rids: idStr})
+            if(res.meta.status !== 200){
+                return this.$message.error('分配权限失败')
+            }
+            this.$message.success('分配权限成功')
+            this.getRolesList()
+            this.rightDialog = false
         }
     }
 }
