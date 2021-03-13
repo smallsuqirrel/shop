@@ -7,10 +7,14 @@ import router from './router'
 //import global css
 import './assets/css/global.css'
 
+import TreeTable from 'vue-table-with-tree-grid'
+
+
 //element-ui
 import ElementUi from 'element-ui'
 import '../node_modules/element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUi)
+Vue.component('tree-table',TreeTable)
 
 //配置请求的根路径
 import axios from 'axios'
@@ -24,6 +28,9 @@ axios.interceptors.request.use(config => {
 Vue.prototype.$http = axios
 
 Vue.config.productionTip = false
+
+
+// Vue.component('tree-table',TreeTable)
 
 /* eslint-disable no-new */
 new Vue({
