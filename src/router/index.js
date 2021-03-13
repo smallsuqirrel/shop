@@ -13,6 +13,7 @@ import Rights from '../components/power/Rights.vue'
 import Roles from '../components/power/Roles.vue'
 
 import Cate from '../components/goods/Cate.vue'
+import Reports from '../components/reports/Reports.vue'
 
 const router = new Router({
   routes: [
@@ -29,7 +30,8 @@ const router = new Router({
         {path: '/users', component: Users},
         {path:'/rights',component: Rights},
         {path:'/roles',component: Roles},
-        {path:'/categories',component: Cate}
+        {path:'/categories',component: Cate},
+        {path:'/reports',component:Reports}
       ]
     }
   ]
